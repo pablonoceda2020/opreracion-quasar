@@ -1,5 +1,7 @@
 package com.opreracion.quasar.communications.services.impl;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.math3.fitting.leastsquares.LevenbergMarquardtOptimizer;
@@ -26,7 +28,7 @@ public class ResolveProblemServiceImpl implements ResolveProblemService {
 	private static final double[] KENOBI = { -500, -200 };
 	private static final double[] SKYWALKER = { 100, -100 };
 	private static final double[] SATO = { 500, 100 };
-	
+
 	@Autowired
 	private Util util;
 
@@ -35,13 +37,11 @@ public class ResolveProblemServiceImpl implements ResolveProblemService {
 		logger.info("Comienza el proceso de obtener el mensaje y la distancia. Request {}", satellites);
 		DataResponse dataResponse = new DataResponse();
 		double[][] positions = new double[][] { KENOBI, SKYWALKER, SATO };
-		
 
-			dataResponse.setMessage(getMessage(satellites.getSatellites()));
+		dataResponse.setMessage(getMessage(satellites.getSatellites()));
 
-			dataResponse.setPosition(getLocation(util.getDistances(satellites), positions));
+		dataResponse.setPosition(getLocation(util.getDistances(satellites), positions));
 
-		
 		logger.info("Finaliza el proceso de obtener el mensaje y la distancia. Request {}", satellites);
 		return dataResponse;
 	}
@@ -61,8 +61,73 @@ public class ResolveProblemServiceImpl implements ResolveProblemService {
 
 	private String getMessage(List<SatelliteRequest> messages) throws CommunicationException {
 
-		
+		List<String> message = null;
+		List<List<String>> otherMessages = new ArrayList<>();
+		int size = 0;
+		Iterator<SatelliteRequest> it = messages.iterator();
+		SatelliteRequest satellite = it.next();
 
+		if (!util.isNullOrEmpty(satellite.getMessage()) || satellite.getMessage().size() == 0) {
+			size = satellite.getMessage().size();
+			message = satellite.getMessage();
+		} else {
+			throw new CommunicationException("Error en los mensajes recibidos");
+		}
+
+		otherMessages = controllerMessages(size, messages);
+
+		return travelListMessage(message, otherMessages);
+	}
+
+	private List<List<String>> controllerMessages(int size, List<SatelliteRequest> messages)
+			throws CommunicationException {
+		List<List<String>> otherMessages = new ArrayList<>();
+		for (SatelliteRequest satellite : messages) {
+
+			if (util.isNullOrEmpty(satellite.getMessage()) || satellite.getMessage().size() != size) {
+				throw new CommunicationException("Error en los mensajes recibidos");
+			} else {
+				otherMessages.add(satellite.getMessage());
+			}
+
+		}
+		return otherMessages;
+	}
+
+	private String travelListMessage(List<String> message, List<List<String>> otherMessages)
+			throws CommunicationException {
+		List<String> listMessage = new ArrayList<>();
+		int index = 0;
+		int i = 0;
+		String datoFaltante = null;
+
+		for (String m : message) {
+			datoFaltante = null;
+			i = 0;
+			if (m.isEmpty()) {
+				while (i < otherMessages.size() && datoFaltante == null) {
+					datoFaltante = getPartMissing(index, otherMessages.get(i));
+					i++;
+				}
+				listMessage.add(datoFaltante);
+				if (datoFaltante == null) {
+					throw new CommunicationException("Error en los mensajes recibidos");
+				}
+
+			} else {
+				listMessage.add(m);
+			}
+			index++;
+		}
+
+		return listMessage.toString();
+	}
+
+	private String getPartMissing(int i, List<String> message) {
+
+		if (!message.get(i).isEmpty()) {
+			return message.get(i);
+		}
 		return null;
 	}
 

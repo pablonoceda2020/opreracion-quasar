@@ -1,5 +1,7 @@
 package com.opreracion.quasar.communications.helper;
 
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 import com.opreracion.quasar.communications.model.request.SatellitesRequest;
@@ -26,6 +28,15 @@ public class Util {
 		resultado = Math.round(resultado);
 		resultado = (resultado / Math.pow(10, numeroDecimales)) + parteEntera;
 		return resultado;
+	}
+
+	public boolean isNullOrEmpty(List<String> list) {
+
+		if (list == null || list.isEmpty()) {
+			return true;
+		}
+
+		return false;
 	}
 
 }
