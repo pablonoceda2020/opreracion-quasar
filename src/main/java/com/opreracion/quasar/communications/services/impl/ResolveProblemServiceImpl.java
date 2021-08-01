@@ -31,21 +31,18 @@ public class ResolveProblemServiceImpl implements ResolveProblemService {
 	private Util util;
 
 	@Override
-	public DataResponse messageData(SatellitesRequest satellites) {
-
+	public DataResponse messageData(SatellitesRequest satellites) throws CommunicationException {
+		logger.info("Comienza el proceso de obtener el mensaje y la distancia. Request {}", satellites);
 		DataResponse dataResponse = new DataResponse();
 		double[][] positions = new double[][] { KENOBI, SKYWALKER, SATO };
 		
 
-		try {
 			dataResponse.setMessage(getMessage(satellites.getSatellites()));
 
 			dataResponse.setPosition(getLocation(util.getDistances(satellites), positions));
 
-		} catch (CommunicationException e) {
-			logger.error("Falla en obtener el mensaje y la distancia. Request {}, messageError {}", satellites,
-					e.getMessage());
-		}
+		
+		logger.info("Finaliza el proceso de obtener el mensaje y la distancia. Request {}", satellites);
 		return dataResponse;
 	}
 
@@ -57,8 +54,8 @@ public class ResolveProblemServiceImpl implements ResolveProblemService {
 				new LevenbergMarquardtOptimizer());
 
 		double[] location = nSolver.solve().getPoint().toArray();
-		position.setX(location[0]);
-		position.setY(location[1]);
+		position.setX(util.redondearDecimales(location[0], 2));
+		position.setY(util.redondearDecimales(location[1], 2));
 		return position;
 	}
 

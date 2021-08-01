@@ -1,10 +1,11 @@
 package com.opreracion.quasar.communications.services;
 
+import com.opreracion.quasar.communications.exceptions.CommunicationException;
 import com.opreracion.quasar.communications.model.request.SatellitesRequest;
 import com.opreracion.quasar.communications.model.response.DataResponse;
 
 public interface ResolveProblemService {
 
-	DataResponse messageData(SatellitesRequest satellites);
+	DataResponse messageData(SatellitesRequest satellites) throws CommunicationException;
 
 }

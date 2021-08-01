@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.opreracion.quasar.communications.exceptions.CommunicationException;
 import com.opreracion.quasar.communications.model.request.SatellitesRequest;
 import com.opreracion.quasar.communications.model.response.DataResponse;
 import com.opreracion.quasar.communications.services.ResolveProblemService;
@@ -25,8 +26,12 @@ public class CommunicationsController {
 			MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<DataResponse> topSecret(@Validated @RequestBody SatellitesRequest satellites) {
 
-		DataResponse dataResp = resolveProblemService.messageData(satellites);
+		try {
+			DataResponse dataResp = resolveProblemService.messageData(satellites);
+			return new ResponseEntity<DataResponse>(dataResp, HttpStatus.OK);
+		} catch (CommunicationException e) {
+			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+		}
 
-		return new ResponseEntity<DataResponse>(dataResp, HttpStatus.OK);
 	}
 }
