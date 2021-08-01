@@ -18,4 +18,9 @@ public class SatellitesRequest {
 		this.satellites = satellites;
 	}
 
+	@Override
+	public String toString() {
+		return "SatellitesRequest [satellites=" + satellites + "]";
+	}
+
 }

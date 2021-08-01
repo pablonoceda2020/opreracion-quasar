@@ -16,13 +16,12 @@ import com.opreracion.quasar.communications.model.response.DataResponse;
 import com.opreracion.quasar.communications.services.ResolveProblemService;
 
 @RestController
-@RequestMapping("/topsecret")
 public class CommunicationsController {
 
 	@Autowired
 	ResolveProblemService resolveProblemService;
 
-	@RequestMapping(method = RequestMethod.POST, path = "/", consumes = {
+	@RequestMapping(method = RequestMethod.POST, value= "/topsecret", consumes = {
 			MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<DataResponse> topSecret(@Validated @RequestBody SatellitesRequest satellites) {
 

@@ -36,4 +36,9 @@ public class SatelliteRequest {
 		this.message = message;
 	}
 
+	@Override
+	public String toString() {
+		return "SatelliteRequest [name=" + name + ", distance=" + distance + ", message=" + message + "]";
+	}
+
 }

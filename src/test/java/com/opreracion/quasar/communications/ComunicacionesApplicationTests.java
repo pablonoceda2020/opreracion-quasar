@@ -1,4 +1,4 @@
-package com.opreracion.quasar.comunicaciones;
+package com.opreracion.quasar.communications;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
