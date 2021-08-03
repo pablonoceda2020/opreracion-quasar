@@ -31,4 +31,9 @@ public class PositionResponse {
 		this.y = y;
 	}
 
+	@Override
+	public String toString() {
+		return "PositionResponse [x=" + x + ", y=" + y + "]";
+	}
+
 }

@@ -47,8 +47,11 @@ public class ResolveProblemServiceImpl implements ResolveProblemService {
 	}
 
 	private PositionResponse getLocation(double[] distances, double[][] positions) throws CommunicationException {
-		PositionResponse position = new PositionResponse();
 
+		logger.info("Inicia el proceso de obtener el origen del mensaje. distances {} - positions {}", distances,
+				positions);
+
+		PositionResponse position = new PositionResponse();
 		TrilaterationFunction trilaterationFunction = new TrilaterationFunction(positions, distances);
 		NonLinearLeastSquaresSolver nSolver = new NonLinearLeastSquaresSolver(trilaterationFunction,
 				new LevenbergMarquardtOptimizer());
@@ -56,11 +59,13 @@ public class ResolveProblemServiceImpl implements ResolveProblemService {
 		double[] location = nSolver.solve().getPoint().toArray();
 		position.setX(util.redondearDecimales(location[0], 2));
 		position.setY(util.redondearDecimales(location[1], 2));
+
+		logger.info("Finaliza el proceso de obtener el origen del mensaje: position {}", position.toString());
 		return position;
 	}
 
 	private String getMessage(List<SatelliteRequest> messages) throws CommunicationException {
-
+		logger.info("Inicia el proceso de obtener el mensaje original. messages {}", messages.toString());
 		List<String> message = null;
 		List<List<String>> otherMessages = new ArrayList<>();
 		int size = 0;
@@ -71,6 +76,7 @@ public class ResolveProblemServiceImpl implements ResolveProblemService {
 			size = satellite.getMessage().size();
 			message = satellite.getMessage();
 		} else {
+			logger.info("No se puede obtener el mensaje original. messages {}", messages.toString());
 			throw new CommunicationException("Error en los mensajes recibidos");
 		}
 
@@ -81,22 +87,28 @@ public class ResolveProblemServiceImpl implements ResolveProblemService {
 
 	private List<List<String>> controllerMessages(int size, List<SatelliteRequest> messages)
 			throws CommunicationException {
+		logger.info("Controlando los mensajes incompletos. messages {}", messages.toString());
 		List<List<String>> otherMessages = new ArrayList<>();
 		for (SatelliteRequest satellite : messages) {
 
 			if (util.isNullOrEmpty(satellite.getMessage()) || satellite.getMessage().size() != size) {
+				logger.info(
+						"Unos de los mensajes incumple lo admitible para poder obtener el mensaje original. messages {}",
+						messages.toString());
 				throw new CommunicationException("Error en los mensajes recibidos");
 			} else {
 				otherMessages.add(satellite.getMessage());
 			}
 
 		}
+
 		return otherMessages;
 	}
 
 	private String travelListMessage(List<String> message, List<List<String>> otherMessages)
 			throws CommunicationException {
-		List<String> listMessage = new ArrayList<>();
+
+		StringBuilder sb = new StringBuilder();
 		int index = 0;
 		int i = 0;
 		String datoFaltante = null;
@@ -106,29 +118,27 @@ public class ResolveProblemServiceImpl implements ResolveProblemService {
 			i = 0;
 			if (m.isEmpty()) {
 				while (i < otherMessages.size() && datoFaltante == null) {
-					datoFaltante = getPartMissing(index, otherMessages.get(i));
+					datoFaltante = util.getPartMissing(index, otherMessages.get(i));
 					i++;
 				}
-				listMessage.add(datoFaltante);
+				sb.append(datoFaltante);
 				if (datoFaltante == null) {
 					throw new CommunicationException("Error en los mensajes recibidos");
 				}
 
 			} else {
-				listMessage.add(m);
+				sb.append(m);
 			}
 			index++;
+			if (index <message.size()) {
+				sb.append(" ");
+			}
 		}
 
-		return listMessage.toString();
+		logger.info("Se obtubo el mensaje original. messages {}", sb.toString());
+		return sb.toString();
 	}
 
-	private String getPartMissing(int i, List<String> message) {
-
-		if (!message.get(i).isEmpty()) {
-			return message.get(i);
-		}
-		return null;
-	}
+	
 
 }

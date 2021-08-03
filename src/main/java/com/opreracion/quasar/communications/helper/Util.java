@@ -13,10 +13,9 @@ public class Util {
 		double[] positions = new double[satellites.getSatellites().size()];
 
 		for (int i = 0; i < satellites.getSatellites().size(); i++) {
-			if (satellites.getSatellites().get(i) != null) {
-				positions[i] = satellites.getSatellites().get(i).getDistance();
-			}
+			positions[i] = satellites.getSatellites().get(i).getDistance();
 		}
+
 		return positions;
 	}
 
@@ -37,6 +36,15 @@ public class Util {
 		}
 
 		return false;
+	}
+
+	public String getPartMissing(int i, List<String> message) {
+
+		if (!message.get(i).isEmpty()) {
+			return message.get(i);
+		}
+
+		return null;
 	}
 
 }
