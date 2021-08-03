@@ -1,0 +1,62 @@
+{
+	"variables": [],
+	"info": {
+		"name": "OperacionQuasar",
+		"_postman_id": "0514286f-9f9e-a225-c43f-1b2580646ca5",
+		"description": "Servicios del cuartel de comunicaciones.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "topsecret",
+			"request": {
+				"url": "https://opreracion-quasar.rj.r.appspot.com/operacion-qasar/topsecret/",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \r\n\"satellites\": [ \r\n{ \r\n\"name\": \"kenobi\", \r\n\"distance\": 100.0, \r\n\"message\": [\"este\", \"\", \"\", \"mensaje\", \"\"] \r\n}, \r\n{ \r\n\"name\": \"skywalker\", \r\n\"distance\": 115.5, \r\n\"message\": [\"\", \"es\", \"\", \"\", \"secreto\"] \r\n}, \r\n{ \r\n\"name\": \"sato\", \r\n\"distance\": 142.7, \r\n\"message\": [\"este\", \"\", \"un\", \"\", \"\"] \r\n} \r\n] \r\n} \r\n"
+				},
+				"description": "Obtine la ubicación de la nave y el mensaje que emite."
+			},
+			"response": []
+		},
+		{
+			"name": "topsecret_split",
+			"request": {
+				"url": "https://opreracion-quasar.rj.r.appspot.com/operacion-qasar/topsecret_split/",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": "Obtiene el mensaje de auxilio y su ubicacion"
+			},
+			"response": []
+		},
+		{
+			"name": "topsecret_split",
+			"request": {
+				"url": "https://opreracion-quasar.rj.r.appspot.com/operacion-qasar/topsecret_split/sato",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \r\n\r\n\"distance\": 142.7, \r\n\"message\": [\"este\", \"\", \"un\", \"\", \"\"] \r\n}"
+				},
+				"description": "Agrega el mensaje recivido en un satelite"
+			},
+			"response": []
+		}
+	]
+}
