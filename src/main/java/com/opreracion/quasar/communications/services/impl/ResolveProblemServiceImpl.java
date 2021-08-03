@@ -58,41 +58,46 @@ public class ResolveProblemServiceImpl implements ResolveProblemService {
 
 	@Override
 	public DataResponse addMessage(SatelliteRequest request, String name) throws CommunicationException {
+		logger.info("Comienza el proceso de agregar el mensaje y la distancia de un satelite. Request {} - Satelite {}",
+				request, name);
 		ListSatellitesRequest satellitesSave = geSatellites();
-		DataResponse data = new DataResponse(); 
+		DataResponse data = new DataResponse();
 		RestTemplate addMessageToList = new RestTemplate();
 		AddListStatus status = null;
 		request.setName(name);
-		boolean flagCambios=false;
-		
-		if(name==null||name.isEmpty()) {
+		boolean flagCambios = false;
+
+		if (name == null || name.isEmpty()) {
 			throw new CommunicationException("Faltan el nombre del satellite");
 		}
-		
+
 		if (satellitesSave == null || satellitesSave.getSatellites().isEmpty()) {
 			satellitesSave = new ListSatellitesRequest();
 			satellitesSave.getSatellites().add(request);
 		} else if (COUNT_SATELLITES >= satellitesSave.getSatellites().size()) {
 			for (SatelliteRequest s : satellitesSave.getSatellites()) {
-				if(name.equalsIgnoreCase(s.getName())) {
-					flagCambios=true;
+				if (name.equalsIgnoreCase(s.getName())) {
+					flagCambios = true;
 					s.setDistance(request.getDistance());
 					s.setMessage(request.getMessage());
+
 				}
 			}
-			
-			if(!flagCambios) {
+
+			if (!flagCambios) {
 				satellitesSave.getSatellites().add(request);
 			}
+			logger.info("Se agrego/modifico un satelite. Satelites: {}", satellitesSave);
 		}
-		
+
 		HttpEntity<ListSatellitesRequest> httpEntity = new HttpEntity<>(satellitesSave);
 		status = addMessageToList.postForObject(resourceDataUrl, httpEntity, AddListStatus.class);
-		
+
 		if (status.getStatus() == 200) {
 			data.setMessage("Ok");
+			logger.info("Se termino el proceso de agregar/modificar un satelite. Status: {}", status);
 		}
-		
+
 		return data;
 	}
 
@@ -179,7 +184,7 @@ public class ResolveProblemServiceImpl implements ResolveProblemService {
 
 	private String travelListMessage(List<String> message, List<List<String>> otherMessages)
 			throws CommunicationException {
-
+		logger.info("Se recorre uno de los mensajes y se compara con los damas para completar lo que falta. Mensajes: {}", otherMessages.toString());
 		StringBuilder sb = new StringBuilder();
 		int index = 0;
 		int i = 0;
