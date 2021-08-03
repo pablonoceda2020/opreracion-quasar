@@ -8,14 +8,19 @@ import org.apache.commons.math3.fitting.leastsquares.LevenbergMarquardtOptimizer
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import com.lemmingapex.trilateration.NonLinearLeastSquaresSolver;
 import com.lemmingapex.trilateration.TrilaterationFunction;
 import com.opreracion.quasar.communications.exceptions.CommunicationException;
 import com.opreracion.quasar.communications.helper.Util;
 import com.opreracion.quasar.communications.model.request.SatelliteRequest;
-import com.opreracion.quasar.communications.model.request.SatellitesRequest;
+import com.opreracion.quasar.communications.model.request.ListSatellitesRequest;
+import com.opreracion.quasar.communications.model.response.AddListStatus;
 import com.opreracion.quasar.communications.model.response.DataResponse;
 import com.opreracion.quasar.communications.model.response.PositionResponse;
 import com.opreracion.quasar.communications.services.ResolveProblemService;
@@ -25,15 +30,20 @@ public class ResolveProblemServiceImpl implements ResolveProblemService {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+	@Value("${resource.url.messages}")
+	private String resourceDataUrl;
+
 	private static final double[] KENOBI = { -500, -200 };
 	private static final double[] SKYWALKER = { 100, -100 };
 	private static final double[] SATO = { 500, 100 };
+
+	private static final int COUNT_SATELLITES = 3;
 
 	@Autowired
 	private Util util;
 
 	@Override
-	public DataResponse messageData(SatellitesRequest satellites) throws CommunicationException {
+	public DataResponse messageData(ListSatellitesRequest satellites) throws CommunicationException {
 		logger.info("Comienza el proceso de obtener el mensaje y la distancia. Request {}", satellites);
 		DataResponse dataResponse = new DataResponse();
 		double[][] positions = new double[][] { KENOBI, SKYWALKER, SATO };
@@ -44,6 +54,68 @@ public class ResolveProblemServiceImpl implements ResolveProblemService {
 
 		logger.info("Finaliza el proceso de obtener el mensaje y la distancia. Request {}", satellites);
 		return dataResponse;
+	}
+
+	@Override
+	public DataResponse addMessage(SatelliteRequest request, String name) throws CommunicationException {
+		ListSatellitesRequest satellitesSave = geSatellites();
+		DataResponse data = new DataResponse(); 
+		RestTemplate addMessageToList = new RestTemplate();
+		AddListStatus status = null;
+		request.setName(name);
+		boolean flagCambios=false;
+		
+		if(name==null||name.isEmpty()) {
+			throw new CommunicationException("Faltan el nombre del satellite");
+		}
+		
+		if (satellitesSave == null || satellitesSave.getSatellites().isEmpty()) {
+			satellitesSave = new ListSatellitesRequest();
+			satellitesSave.getSatellites().add(request);
+		} else if (COUNT_SATELLITES >= satellitesSave.getSatellites().size()) {
+			for (SatelliteRequest s : satellitesSave.getSatellites()) {
+				if(name.equalsIgnoreCase(s.getName())) {
+					flagCambios=true;
+					s.setDistance(request.getDistance());
+					s.setMessage(request.getMessage());
+				}
+			}
+			
+			if(!flagCambios) {
+				satellitesSave.getSatellites().add(request);
+			}
+		}
+		
+		HttpEntity<ListSatellitesRequest> httpEntity = new HttpEntity<>(satellitesSave);
+		status = addMessageToList.postForObject(resourceDataUrl, httpEntity, AddListStatus.class);
+		
+		if (status.getStatus() == 200) {
+			data.setMessage("Ok");
+		}
+		
+		return data;
+	}
+
+	@Override
+	public DataResponse getMessageData() throws CommunicationException {
+
+		DataResponse resp = null;
+		ListSatellitesRequest response = geSatellites();
+
+		if (!util.isNullOrEmptySatellite(response.getSatellites(), COUNT_SATELLITES)) {
+			resp = messageData(response);
+		} else {
+			throw new CommunicationException("Faltan satellites");
+		}
+
+		return resp;
+	}
+
+	public ListSatellitesRequest geSatellites() {
+		RestTemplate restTemplate = new RestTemplate();
+		ResponseEntity<ListSatellitesRequest> response = restTemplate.getForEntity(resourceDataUrl,
+				ListSatellitesRequest.class);
+		return response.getBody();
 	}
 
 	private PositionResponse getLocation(double[] distances, double[][] positions) throws CommunicationException {
@@ -130,7 +202,7 @@ public class ResolveProblemServiceImpl implements ResolveProblemService {
 				sb.append(m);
 			}
 			index++;
-			if (index <message.size()) {
+			if (index < message.size()) {
 				sb.append(" ");
 			}
 		}
@@ -138,7 +210,5 @@ public class ResolveProblemServiceImpl implements ResolveProblemService {
 		logger.info("Se obtubo el mensaje original. messages {}", sb.toString());
 		return sb.toString();
 	}
-
-	
 
 }

@@ -1,5 +1,8 @@
 package com.opreracion.quasar.communications.model.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL) 
 public class DataResponse {
 
 	private PositionResponse position;

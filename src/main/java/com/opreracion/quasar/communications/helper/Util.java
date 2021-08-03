@@ -4,12 +4,13 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.opreracion.quasar.communications.model.request.SatellitesRequest;
+import com.opreracion.quasar.communications.model.request.SatelliteRequest;
+import com.opreracion.quasar.communications.model.request.ListSatellitesRequest;
 
 @Component
 public class Util {
 
-	public double[] getDistances(SatellitesRequest satellites) {
+	public double[] getDistances(ListSatellitesRequest satellites) {
 		double[] positions = new double[satellites.getSatellites().size()];
 
 		for (int i = 0; i < satellites.getSatellites().size(); i++) {
@@ -32,6 +33,15 @@ public class Util {
 	public boolean isNullOrEmpty(List<String> list) {
 
 		if (list == null || list.isEmpty()) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public boolean isNullOrEmptySatellite(List<SatelliteRequest> list, int cant) {
+
+		if (list == null || list.isEmpty() || list.size() != cant) {
 			return true;
 		}
 

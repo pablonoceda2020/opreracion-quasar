@@ -1,12 +1,12 @@
 package com.opreracion.quasar.communications.model.request;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.opreracion.quasar.communications.model.Satellite;
 
-public class SatelliteRequest {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class SatelliteRequest extends Satellite {
 
 	private String name;
-	private double distance;
-	private List<String> message;
 
 	public SatelliteRequest() {
 		super();
@@ -20,25 +20,9 @@ public class SatelliteRequest {
 		this.name = name;
 	}
 
-	public double getDistance() {
-		return distance;
-	}
-
-	public void setDistance(double distance) {
-		this.distance = distance;
-	}
-
-	public List<String> getMessage() {
-		return message;
-	}
-
-	public void setMessage(List<String> message) {
-		this.message = message;
-	}
-
 	@Override
 	public String toString() {
-		return "SatelliteRequest [name=" + name + ", distance=" + distance + ", message=" + message + "]";
+		return "SatelliteRequest [name=" + name + "]";
 	}
 
 }

@@ -13,7 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.opreracion.quasar.communications.exceptions.CommunicationException;
 import com.opreracion.quasar.communications.model.request.SatelliteRequest;
-import com.opreracion.quasar.communications.model.request.SatellitesRequest;
+import com.opreracion.quasar.communications.model.request.ListSatellitesRequest;
 import com.opreracion.quasar.communications.model.response.DataResponse;
 import com.opreracion.quasar.communications.model.response.PositionResponse;
 import com.opreracion.quasar.communications.services.ResolveProblemService;
@@ -26,7 +26,7 @@ class ComunicacionesApplicationTests {
 
 	@Test
 	void obtenerMensajeOriginalOk() {
-		SatellitesRequest satellites = generarReqOk();
+		ListSatellitesRequest satellites = generarReqOk();
 		DataResponse dataResp = null;
 		PositionResponse respuestaEsperada = new PositionResponse();
 		respuestaEsperada.setX(-58.32);
@@ -47,7 +47,7 @@ class ComunicacionesApplicationTests {
 
 	@Test
 	void fallaMensajeIncompleto() {
-		SatellitesRequest satellites = generarReqMensajeIncompleto();
+		ListSatellitesRequest satellites = generarReqMensajeIncompleto();
 
 		DataResponse dataResp = null;
 		try {
@@ -58,8 +58,8 @@ class ComunicacionesApplicationTests {
 		assertNull(dataResp);
 	}
 
-	private SatellitesRequest generarReqOk() {
-		SatellitesRequest satellites = new SatellitesRequest();
+	private ListSatellitesRequest generarReqOk() {
+		ListSatellitesRequest satellites = new ListSatellitesRequest();
 		List<SatelliteRequest> satellitesList = new ArrayList<>();
 
 		// "auxilio motor roto"
@@ -71,8 +71,8 @@ class ComunicacionesApplicationTests {
 		return satellites;
 	}
 
-	private SatellitesRequest generarReqMensajeIncompleto() {
-		SatellitesRequest satellites = new SatellitesRequest();
+	private ListSatellitesRequest generarReqMensajeIncompleto() {
+		ListSatellitesRequest satellites = new ListSatellitesRequest();
 		List<SatelliteRequest> satellitesList = new ArrayList<>();
 
 		// "auxilio roto"
